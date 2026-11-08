@@ -155,5 +155,49 @@ RAG_System/
 
 ---
 
+## 🌐 Deployment (Vercel + Railway)
+
+Lumen is a split app: a **static React frontend** (Vercel) and a **Python ML backend** (Railway/Render). Vercel is a perfect fit for the frontend, but the backend loads `sentence-transformers` + FAISS and holds an in-memory index, which does not fit Vercel's serverless limits — so the backend lives on a Python host and the frontend calls it cross-origin.
+
+> No `artifacts/` are committed (they're gitignored). `scripts/build_index.py` runs automatically at backend build time from the committed `data/corpus/`, so the index is ready on first load.
+
+### Architecture when deployed
+```
+ Browser ──► Vercel (React static build) ──► Railway (FastAPI + FAISS)
+            VITE_API_URL                    RAG_CORS_ORIGINS = <vercel url>
+```
+
+### 1. Backend → Railway (recommended, free tier)
+1. Go to [railway.app](https://railway.app) → **Start a New Project** → **Deploy from GitHub repo** → select `HamzaCreations/Lumen`.
+2. **Root Directory:** leave as the repository root (default).
+3. The included `railway.json` already defines the build and start commands:
+   - **Build:** `pip install -r backend/requirements.txt && python scripts/build_index.py`
+   - **Start:** `uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port $PORT`
+4. Add **Environment Variables** (Railway → Variables):
+   - `RAG_CORS_ORIGINS` = `https://<your-vercel-url>` (the frontend domain — see step 2). Use `*` only for a quick test.
+   - `RAG_API_KEY` = your OpenAI-compatible key (Groq/OpenAI/OpenRouter). *Optional* — users can also paste their own key in the UI at runtime; setting it here shares one key with all visitors.
+5. Deploy. Once healthy, copy the generated backend URL, e.g. `https://lumen-backend.up.railway.app`.
+
+### 2. Frontend → Vercel
+1. Go to [vercel.com](https://vercel.com) → **Add New… → Project** → import `HamzaCreations/Lumen`.
+2. **Root Directory:** set to `frontend`.
+3. Framework is auto-detected as **Vite** (build `npm run build`, output `dist`).
+4. **Environment Variable** (critical — baked at build time, so set it *before* deploying):
+   - `VITE_API_URL` = your Railway backend URL from step 1 (e.g. `https://lumen-backend.up.railway.app`). **No trailing slash.**
+5. Click **Deploy**. After it finishes, copy the Vercel URL (e.g. `https://lumen.vercel.app`).
+6. Go back to **Railway → Variables** and set `RAG_CORS_ORIGINS` to that exact Vercel URL, then redeploy the backend.
+
+### 3. Verify
+- Open the Vercel URL. The top status pill should show **online** (green) once the backend's `/health` responds.
+- The first request after a cold start can be slow (the embedding model is loaded/cached). Subsequent requests are fast.
+- Ask a question about the course material — answers stream with cited source passages.
+
+### Alternatives & notes
+- **Render** works the same way: connect the repo, set Start Command `uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port $PORT` and a Build Command `pip install -r backend/requirements.txt && python scripts/build_index.py`, then set the same env vars.
+- **All-on-Vercel (not recommended):** the backend *can* be wrapped as a Vercel Python function (e.g. via `Mangum`), but the `torch`/`transformers`/`faiss-cpu` stack exceeds the Hobby function size limit and the 60 s timeout, and cold starts are poor. Keep the backend on a Python host.
+- **Custom domain:** add it in Vercel (frontend) and update `RAG_CORS_ORIGINS` on Railway to match.
+
+---
+
 ## 📄 License
 This project is provided for educational use as part of the Huawei Cloud AI RAG course.

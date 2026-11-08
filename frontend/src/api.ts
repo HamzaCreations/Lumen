@@ -8,7 +8,11 @@ import type {
   StreamEvent,
 } from './types'
 
-const BASE = '/api'
+// In production set VITE_API_URL to the backend base URL
+// (e.g. https://lumen-backend.up.railway.app). When unset, the app uses the
+// same-origin "/api" path, which the Vite dev proxy forwards to :8000.
+const API_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '')
+export const BASE = API_URL || '/api'
 
 /** Only non-empty runtime credentials are sent; otherwise the server uses .env. */
 function credentials(c: Connection): Partial<AskRequest> {
