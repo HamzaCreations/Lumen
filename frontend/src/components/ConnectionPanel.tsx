@@ -96,7 +96,7 @@ export function ConnectionPanel({ value, onChange, health, disabled }: Props) {
         </div>
       </label>
 
-      <button className="secondary conn-test" type="button" disabled={disabled || state.kind === 'testing'}
+      <button className="btn secondary full conn-test" type="button" disabled={disabled || state.kind === 'testing'}
         onClick={() => void runTest()}>
         {state.kind === 'testing' ? 'Testing…' : 'Test connection'}
       </button>

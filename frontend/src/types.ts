@@ -1,5 +1,7 @@
 export type View = 'home' | 'chat' | 'upload' | 'library' | 'settings'
 
+export type Theme = 'light' | 'dark'
+
 export type Source = {
   id: number
   source: string

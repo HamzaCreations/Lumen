@@ -13,7 +13,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('[Course RAG] render error:', error.message, info.componentStack)
+    console.error('[Lumen] render error:', error.message, info.componentStack)
   }
 
   render() {

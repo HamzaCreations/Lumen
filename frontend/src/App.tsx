@@ -9,11 +9,18 @@ import { HomeView } from './views/HomeView'
 import { SettingsView } from './views/SettingsView'
 import type {
   ChatMessage, Connection, Controls as ControlsType, DocumentList,
-  Health, StreamEvent, UploadItem, View,
+  Health, StreamEvent, Theme, UploadItem, View,
 } from './types'
 
 const uid = () => Math.random().toString(36).slice(2, 10)
 const CONN_KEY = 'rag:connection'
+const THEME_KEY = 'rag:theme'
+
+/** Read the theme already applied to <html> by the no-flash script in index.html. */
+function getInitialTheme(): Theme {
+  const applied = document.documentElement.getAttribute('data-theme')
+  return applied === 'dark' ? 'dark' : 'light'
+}
 
 /** Credentials live only for this browser tab. Nothing is persisted to disk. */
 function loadConnection(): Connection {
@@ -31,6 +38,7 @@ export default function App() {
   const [view, setView] = useState<View>('home')
   const [collapsed, setCollapsed] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [theme, setTheme] = useState<Theme>(getInitialTheme)
 
   const [health, setHealth] = useState<Health | null>(null)
   const [healthError, setHealthError] = useState<string | null>(null)
@@ -217,6 +225,13 @@ export default function App() {
 
   const navigate = (next: View) => { setView(next); setMobileNavOpen(false) }
 
+  const toggleTheme = () => {
+    const next: Theme = theme === 'dark' ? 'light' : 'dark'
+    document.documentElement.setAttribute('data-theme', next)
+    try { localStorage.setItem(THEME_KEY, next) } catch { /* storage unavailable */ }
+    setTheme(next)
+  }
+
   const configured = Boolean(connection.apiKey.trim() || health?.api_key_configured)
   const model = connection.apiModel.trim() || health?.llm_model || ''
 
@@ -229,7 +244,8 @@ export default function App() {
 
       <div className="main-column">
         <TopBar view={view} onOpenMobileNav={() => setMobileNavOpen(true)}
-          online={Boolean(health) && !healthError} configured={configured} model={model} />
+          online={Boolean(health) && !healthError} configured={configured} model={model}
+          theme={theme} onToggleTheme={toggleTheme} />
 
         <main className="content">
           {healthError && (
