@@ -1,0 +1,16 @@
+# Core backend dependencies.
+# NOTE: install torch FIRST from the CPU index on machines without an NVIDIA GPU:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+# (or the regular `pip install torch` if you have CUDA). It is intentionally
+# not listed here so pip does not pull a multi-GB CUDA build by accident.
+
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30
+numpy>=1.26,<3
+faiss-cpu>=1.11
+transformers>=4.45,<5
+accelerate>=0.26
+huggingface-hub>=0.24
+scikit-learn>=1.4
+httpx>=0.27
+pytest>=8

@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+node_modules/
+frontend/dist/
+*.log
+.DS_Store
+# Browser-debug artifacts
+.playwright-cli/
+rag-working.png
+rag-friendly.png
+# Rebuild these with: python scripts/build_index.py --verify
+artifacts/rag.index
+artifacts/chunks.jsonl
+artifacts/manifest.json
