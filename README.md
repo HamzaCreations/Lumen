@@ -6,6 +6,17 @@ Built for the Huawei Cloud AI RAG course project.
 
 ---
 
+## 🌐 Live Demo
+
+Lumen is deployed and publicly accessible:
+
+- **Frontend (Vercel):** https://frontend-one-sigma-leq656ra7n.vercel.app
+- **Backend (Railway):** https://web-production-7ef7c.up.railway.app  → `/health` returns `{"status":"ok","index_ready":true,"chunks":1342,"dim":384}`
+
+The frontend calls the backend cross-origin (CORS is locked to the Vercel domain). **To ask questions, add your own LLM key** in the in-app **Settings → AI connection** (Groq / OpenAI / OpenRouter) — no shared key is configured server-side, so the backend abstains until a key is provided.
+
+---
+
 ## ✨ Features
 
 - **Grounded answers** — responses are generated only from retrieved document chunks, never from the model's parametric memory.
